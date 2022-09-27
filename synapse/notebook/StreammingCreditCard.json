@@ -4,7 +4,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "",
+			"referenceName": "poolstreaming",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "38dabc61-091a-43bb-9f56-ff77a33804fe"
+				"spark.autotune.trackingId": "7a434d62-8192-46ff-8fac-7bf961fa0f5c"
 			}
 		},
 		"metadata": {
@@ -31,15 +31,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "",
-				"name": "",
+				"id": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Synapse/workspaces/saeventhubdemo/bigDataPools/poolstreaming",
+				"name": "poolstreaming",
 				"type": "Spark",
-				"endpoint": "",
+				"endpoint": "https://saeventhubdemo.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/poolstreaming",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.1",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,

@@ -35,15 +35,23 @@
 							"type": "string"
 						},
 						"input_storageaccount": {
-							"value": "",
+							"value": "eventhubdatajh",
 							"type": "string"
 						}
 					},
 					"snapshot": true,
 					"sparkPool": {
-						"referenceName": "poolname",
+						"referenceName": "poolstreaming",
 						"type": "BigDataPoolReference"
-					}
+					},
+					"executorSize": null,
+					"conf": {
+						"spark.dynamicAllocation.enabled": null,
+						"spark.dynamicAllocation.minExecutors": null,
+						"spark.dynamicAllocation.maxExecutors": null
+					},
+					"driverSize": null,
+					"numExecutors": null
 				}
 			}
 		],

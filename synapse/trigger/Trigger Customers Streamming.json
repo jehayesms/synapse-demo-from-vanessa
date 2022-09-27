@@ -2,7 +2,7 @@
 	"name": "Trigger Customers Streamming",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
@@ -17,10 +17,10 @@
 		],
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
-			"blobPathBeginsWith": "eventhubname/customer",
+			"blobPathBeginsWith": "/captureddata/blobs/ehsynapsedemo/eventhubsynapse",
 			"blobPathEndsWith": ".avro",
 			"ignoreEmptyBlobs": true,
-			"scope": "",
+			"scope": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh",
 			"events": [
 				"Microsoft.Storage.BlobCreated"
 			]

@@ -9,7 +9,7 @@ from azure.eventhub import EventHubProducerClient, EventData
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
-keyVaultName = "demosynapse-akv"
+keyVaultName = "kvforehsynapsedemo"
 KVUri = f"https://{keyVaultName}.vault.azure.net"
 
 credential = DefaultAzureCredential()

@@ -21,7 +21,7 @@
 					"name": "select1"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "parse1"
 				}
 			],
 			"scriptLines": [
@@ -52,7 +52,10 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"cast1 derive(Body = ERROR_FUNCTION('')) ~> derivedColumn1"
+				"cast1 parse(jsonBody = Body ? \r",
+				"(CustomerID as string, PersonID as string, StoreID as string,TerritoryID as string,AccountNumber as string, rowguid as string, ModifiedDate as string),",
+				"     format: 'json',",
+				"     documentForm: 'arrayOfDocuments') ~> parse1"
 			]
 		}
 	}

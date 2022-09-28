@@ -2,7 +2,7 @@
 	"name": "Trigger ProdCostHist Streamming",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {

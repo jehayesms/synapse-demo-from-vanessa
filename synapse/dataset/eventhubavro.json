@@ -1,0 +1,20 @@
+{
+	"name": "eventhubavro",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adlseventhubdata",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Avro",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "39.avro",
+				"folderPath": "ehsynapsedemo/eventhubsynapse/0/2022/09/28/00/33",
+				"fileSystem": "captureddata"
+			}
+		},
+		"schema": {}
+	}
+}

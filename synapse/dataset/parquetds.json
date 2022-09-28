@@ -1,0 +1,20 @@
+{
+	"name": "parquetds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "saeventhubdemo-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "parquet",
+				"fileSystem": "synapseadlsjhfs"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

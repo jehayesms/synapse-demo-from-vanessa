@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3119c2bc-541b-4908-85fd-3bded3ea2910"
+				"spark.autotune.trackingId": "bd042a72-3903-4ed6-b642-fc4851f7f970"
 			}
 		},
 		"metadata": {
@@ -59,7 +59,10 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"tags": [
+						"parameters"
+					]
 				},
 				"source": [
 					"# Section which just displays some info for troubleshooting\r\n",
@@ -117,7 +120,7 @@
 					"inputDf.printSchema()\r\n",
 					"inputDf.show(truncate=False)"
 				],
-				"execution_count": 4
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -148,7 +151,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",

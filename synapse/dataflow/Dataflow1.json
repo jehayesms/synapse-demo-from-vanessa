@@ -1,0 +1,59 @@
+{
+	"name": "Dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "adlseventhubdata",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          SequenceNumber as long,",
+				"          Offset as string,",
+				"          EnqueuedTimeUtc as string,",
+				"          SystemProperties as [string,(member0 as long, member1 as double, member2 as string, member3 as binary)],",
+				"          Properties as [string,(member0 as long, member1 as double, member2 as string, member3 as binary)],",
+				"          Body as binary",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'avro',",
+				"     fileSystem: 'captureddata',",
+				"     folderPath: 'ehsynapsedemo/eventhubsynapse/0/2022/09/27/23/58',",
+				"     fileName: '39.avro') ~> source1",
+				"select1 cast(output(",
+				"          Body as string",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"source1 select(mapColumn(",
+				"          SequenceNumber,",
+				"          Offset,",
+				"          EnqueuedTimeUtc,",
+				"          Body",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"cast1 derive(Body = ERROR_FUNCTION('')) ~> derivedColumn1"
+			]
+		}
+	}
+}

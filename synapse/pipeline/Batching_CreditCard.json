@@ -15,10 +15,6 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebook": {
-						"referenceName": "StreammingCreditCard",
-						"type": "NotebookReference"
-					},
 					"parameters": {
 						"input_file": {
 							"value": {
@@ -40,10 +36,12 @@
 						}
 					},
 					"snapshot": true,
-					"sparkPool": {
-						"referenceName": "poolname",
-						"type": "BigDataPoolReference"
-					}
+					"conf": {
+						"spark.dynamicAllocation.enabled": null,
+						"spark.dynamicAllocation.minExecutors": null,
+						"spark.dynamicAllocation.maxExecutors": null
+					},
+					"numExecutors": null
 				}
 			}
 		],

@@ -17,7 +17,21 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "Move data to dataflow parquet",
-						"type": "DataFlowReference"
+						"type": "DataFlowReference",
+						"parameters": {
+							"container": {
+								"value": "'@{pipeline().parameters.container}'",
+								"type": "Expression"
+							},
+							"folder": {
+								"value": "'@{pipeline().parameters.folder}'",
+								"type": "Expression"
+							},
+							"file": {
+								"value": "'@{pipeline().parameters.file}'",
+								"type": "Expression"
+							}
+						}
 					},
 					"compute": {
 						"coreCount": 8,

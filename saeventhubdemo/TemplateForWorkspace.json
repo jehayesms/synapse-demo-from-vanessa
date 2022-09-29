@@ -1,0 +1,1572 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "saeventhubdemo"
+		},
+		"saeventhubdemo-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'saeventhubdemo-WorkspaceDefaultSqlServer'"
+		},
+		"adlseventhubdata_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://eventhubdatajh.dfs.core.windows.net/"
+		},
+		"saeventhubdemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://synapseadlsjh.dfs.core.windows.net"
+		},
+		"Trigger Customers Streamming_properties_Batching_parameters_sourceFolderPath": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.body.folderPath"
+		},
+		"Trigger Customers Streamming_properties_Batching_parameters_sourceFile": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.body.fileName"
+		},
+		"Trigger Customers Streamming_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
+		},
+		"Trigger OrderHeader Streamming_properties_Batching_OrderHeader_parameters_sourceFolderPath": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.body.folderPath"
+		},
+		"Trigger OrderHeader Streamming_properties_Batching_OrderHeader_parameters_sourceFile": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.body.fileName"
+		},
+		"Trigger OrderHeader Streamming_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
+		},
+		"Trigger ProdCostHist Streamming_properties_Batching_ProdCostHist_parameters_sourceFolderPath": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.body.folderPath"
+		},
+		"Trigger ProdCostHist Streamming_properties_Batching_ProdCostHist_parameters_sourceFile": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.body.fileName"
+		},
+		"Trigger ProdCostHist Streamming_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/Batching')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "StreammingLand",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "StreammingLand",
+								"type": "NotebookReference"
+							},
+							"parameters": {
+								"input_file": {
+									"value": {
+										"value": "@pipeline().parameters.sourceFile",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"input_folder_path": {
+									"value": {
+										"value": "@pipeline().parameters.sourceFolderPath",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"input_storageaccount": {
+									"value": "eventhubdatajh",
+									"type": "string"
+								}
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "poolstreaming",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": null,
+							"conf": {
+								"spark.dynamicAllocation.enabled": null,
+								"spark.dynamicAllocation.minExecutors": null,
+								"spark.dynamicAllocation.maxExecutors": null
+							},
+							"driverSize": null,
+							"numExecutors": null
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"sourceFolderPath": {
+						"type": "string"
+					},
+					"sourceFile": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/StreammingLand')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/poolstreaming')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Batching_OrderHeader')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "StreammingLandOrderHeader",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "StreammingLandOrders",
+								"type": "NotebookReference"
+							},
+							"parameters": {
+								"input_file": {
+									"value": {
+										"value": "@pipeline().parameters.sourceFile",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"input_folder_path": {
+									"value": {
+										"value": "@pipeline().parameters.sourceFolderPath",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"input_storageaccount": {
+									"value": "",
+									"type": "string"
+								}
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "poolstreaming",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": null,
+							"conf": {
+								"spark.dynamicAllocation.enabled": null,
+								"spark.dynamicAllocation.minExecutors": null,
+								"spark.dynamicAllocation.maxExecutors": null
+							},
+							"driverSize": null,
+							"numExecutors": null
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"sourceFolderPath": {
+						"type": "string"
+					},
+					"sourceFile": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/StreammingLandOrders')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/poolstreaming')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Batching_ProdCostHist')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "StreammingLandProdCostHist",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "StreammingProdCostHist",
+								"type": "NotebookReference"
+							},
+							"parameters": {
+								"input_file": {
+									"value": {
+										"value": "@pipeline().parameters.sourceFile",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"input_folder_path": {
+									"value": {
+										"value": "@pipeline().parameters.sourceFolderPath",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"input_storageaccount": {
+									"value": "",
+									"type": "string"
+								}
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "poolstreaming",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": null,
+							"conf": {
+								"spark.dynamicAllocation.enabled": null,
+								"spark.dynamicAllocation.minExecutors": null,
+								"spark.dynamicAllocation.maxExecutors": null
+							},
+							"driverSize": null,
+							"numExecutors": null
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"sourceFolderPath": {
+						"type": "string"
+					},
+					"sourceFile": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/StreammingProdCostHist')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/poolstreaming')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AvroSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "SequenceNumber",
+											"type": "Int64",
+											"physicalType": "long"
+										},
+										"sink": {
+											"name": "SequenceNumber",
+											"type": "Int64",
+											"physicalType": "INT_64"
+										}
+									},
+									{
+										"source": {
+											"name": "Offset",
+											"type": "String",
+											"physicalType": "string"
+										},
+										"sink": {
+											"name": "Offset",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "EnqueuedTimeUtc",
+											"type": "String",
+											"physicalType": "string"
+										},
+										"sink": {
+											"name": "EnqueuedTimeUtc",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Body",
+											"physicalType": "null | bytes"
+										},
+										"sink": {
+											"name": "Body"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "eventhubavro",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "parquetds",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/eventhubavro')]",
+				"[concat(variables('workspaceId'), '/datasets/parquetds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/eventhubavro')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adlseventhubdata",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Avro",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "39.avro",
+						"folderPath": "ehsynapsedemo/eventhubsynapse/0/2022/09/28/00/33",
+						"fileSystem": "captureddata"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/adlseventhubdata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/parquetds')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "saeventhubdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "parquet",
+						"fileSystem": "synapseadlsjhfs"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/saeventhubdemo-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/adlseventhubdata')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('adlseventhubdata_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/saeventhubdemo-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('saeventhubdemo-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/saeventhubdemo-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('saeventhubdemo-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Trigger Customers Streamming')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Batching",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourceFolderPath": "[parameters('Trigger Customers Streamming_properties_Batching_parameters_sourceFolderPath')]",
+							"sourceFile": "[parameters('Trigger Customers Streamming_properties_Batching_parameters_sourceFile')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/captureddata/blobs/ehsynapsedemo/eventhubsynapse",
+					"blobPathEndsWith": ".avro",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('Trigger Customers Streamming_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/Batching')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Trigger OrderHeader Streamming')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Batching_OrderHeader",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourceFolderPath": "[parameters('Trigger OrderHeader Streamming_properties_Batching_OrderHeader_parameters_sourceFolderPath')]",
+							"sourceFile": "[parameters('Trigger OrderHeader Streamming_properties_Batching_OrderHeader_parameters_sourceFile')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/captureddata/blobs/ehsynapsedemo/eventhubsynapse",
+					"blobPathEndsWith": ".avro",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('Trigger OrderHeader Streamming_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/Batching_OrderHeader')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Trigger ProdCostHist Streamming')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Batching_ProdCostHist",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourceFolderPath": "[parameters('Trigger ProdCostHist Streamming_properties_Batching_ProdCostHist_parameters_sourceFolderPath')]",
+							"sourceFile": "[parameters('Trigger ProdCostHist Streamming_properties_Batching_ProdCostHist_parameters_sourceFile')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/captureddata/blobs/ehsynapsedemo/eventhubsynapse",
+					"blobPathEndsWith": ".avro",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('Trigger ProdCostHist Streamming_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/Batching_ProdCostHist')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Dataflow1')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "adlseventhubdata",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "parquetds",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "cast1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "parse1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SequenceNumber as long,",
+						"          Offset as string,",
+						"          EnqueuedTimeUtc as string,",
+						"          SystemProperties as [string,(member0 as long, member1 as double, member2 as string, member3 as binary)],",
+						"          Properties as [string,(member0 as long, member1 as double, member2 as string, member3 as binary)],",
+						"          Body as binary",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'avro',",
+						"     fileSystem: 'captureddata',",
+						"     folderPath: 'ehsynapsedemo/eventhubsynapse/0/2022/09/27/23/58',",
+						"     fileName: '39.avro') ~> source1",
+						"select1 cast(output(",
+						"          Body as string",
+						"     ),",
+						"     errors: true) ~> cast1",
+						"source1 select(mapColumn(",
+						"          SequenceNumber,",
+						"          Offset,",
+						"          EnqueuedTimeUtc,",
+						"          Body",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"cast1 parse(jsonBody = Body ? (CustomerID as string,",
+						"          PersonID as string,",
+						"          StoreID as string,",
+						"          TerritoryID as string,",
+						"          AccountNumber as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as string),",
+						"     format: 'json',",
+						"     documentForm: 'arrayOfDocuments') ~> parse1",
+						"parse1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/adlseventhubdata')]",
+				"[concat(variables('workspaceId'), '/datasets/parquetds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CreateViewCreditCard')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE VIEW CreditCard AS\nselect \n    CreditCardID = JSON_VALUE(Body, '$.CreditCardID'),\n    CardType = JSON_VALUE(Body, '$.CardType'),\n    CardNumber = JSON_VALUE(Body, '$.CardNumber'),\n    ExpMonth = JSON_VALUE(Body, '$.ExpMonth'),\n    ExpYear = JSON_VALUE(Body, '$.ExpYear'),    \n    ModifiedDate = JSON_VALUE(Body, '$.ModifiedDate')\nfrom openrowset(\n    bulk 'https://2by1datalake.dfs.core.windows.net/datalake/Raw/CreditCard/Year=*/Month=*/Day=*/File=*/*.snappy.parquet',\n    format = 'parquet')\n AS [r];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "adventureworks",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CreateViewCustomer')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE VIEW SalesCustomer AS\nselect \n    CustomerID = JSON_VALUE(Body, '$.CustomerID'),\n    PersonID = JSON_VALUE(Body, '$.PersonID'),\n    StoreID = JSON_VALUE(Body, '$.StoreID'),\n    TerritoryID = JSON_VALUE(Body, '$.TerritoryID'),\n    AccountNumber = JSON_VALUE(Body, '$.AccountNumber'),\n    rowguid = JSON_VALUE(Body, '$.rowguid'),\n    ModifiedDate = JSON_VALUE(Body, '$.ModifiedDate')\nfrom openrowset(\n    bulk 'https://demostreamdatalake.dfs.core.windows.net/datalake/Raw/Customer/Year=*/Month=*/Day=*/File=*/*.snappy.parquet',\n    format = 'parquet')\n AS [r];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "adventureworks",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CreateViewOrderHeader')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE VIEW OrderHeader AS\nselect \n    SalesOrderID = JSON_VALUE(Body, '$.SalesOrderID'),\n    OrderDate = JSON_VALUE(Body, '$.OrderDate'),\n    Status = JSON_VALUE(Body, '$.Status'),\n    SalesOrderNumber = JSON_VALUE(Body, '$.SalesOrderNumber'),\n    PurchaseOrderNumber = JSON_VALUE(Body, '$.PurchaseOrderNumber'),\n    AccountNumber = JSON_VALUE(Body, '$.AccountNumber'),\n    CustomerID = JSON_VALUE(Body, '$.CustomerID'),\n    SalesPersonID = JSON_VALUE(Body, '$.SalesPersonID'),\n    CreditCardID = JSON_VALUE(Body, '$.CreditCardID'),\n    CreditCardApprovalCode = JSON_VALUE(Body, '$.CreditCardApprovalCode'),\n    TotalDue = JSON_VALUE(Body, '$.TotalDue'),\n    rowguid = JSON_VALUE(Body, '$.rowguid'),\n    ModifiedDate = JSON_VALUE(Body, '$.ModifiedDate')\nfrom openrowset(\n    bulk 'https://demostreamdatalake.dfs.core.windows.net/datalake/Raw/OrderHeader/Year=*/Month=*/Day=*/File=*/*.snappy.parquet',\n    format = 'parquet')\n AS [r];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "adventureworks",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CreateViewProdCostHist')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE VIEW ProdCostHist AS\nselect \n    ProductID = JSON_VALUE(Body, '$.ProductID'),\n    StartDate = JSON_VALUE(Body, '$.StartDate'),\n    EndDate = JSON_VALUE(Body, '$.EndDate'),\n    StandardCost = JSON_VALUE(Body, '$.StandardCost'),   \n    ModifiedDate = JSON_VALUE(Body, '$.ModifiedDate')\nfrom openrowset(\n    bulk 'https://demostreamdatalake.dfs.core.windows.net/datalake/Raw/ProdCostHist/Year=*/Month=*/Day=*/File=*/*.snappy.parquet',\n    format = 'parquet')\n AS [r];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "adventureworks",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/QueryDatalake')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": " Select \n    count(*)\nfrom openrowset(\n    bulk 'https://demostreamdatalake.dfs.core.windows.net/datalake/Raw/Customer/Year=*/Month=*/Day=*/File=*/*.snappy.parquet',\n    format = 'parquet')\n AS [r];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/StreammingLand')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "poolstreaming",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "a82b1041-6516-412e-8d86-4229041f83dd"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Synapse/workspaces/saeventhubdemo/bigDataPools/poolstreaming",
+						"name": "poolstreaming",
+						"type": "Spark",
+						"endpoint": "https://saeventhubdemo.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/poolstreaming",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"tags": []
+						},
+						"source": [
+							"# Section which just displays some info for troubleshooting\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"from pyspark.sql.functions import split\r\n",
+							"\r\n",
+							"\r\n",
+							"displayHTML(\"Input Parameters:</br>\")\r\n",
+							"displayHTML(\"input_file: %s</br>\" % input_file)\r\n",
+							"displayHTML(\"input_folder_Path: %s</br>\" % input_folder_path)\r\n",
+							"displayHTML(\"input_storageaccount: %s</br>\" % input_storageaccount)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"\r\n",
+							"#Get the container from the input parameter\r\n",
+							"folderNames = input_folder_path.split(\"/\")\r\n",
+							"source_container_name = folderNames[0]\r\n",
+							"displayHTML(\"source_container_name: \")\r\n",
+							"displayHTML(source_container_name)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"#Get the relative path from the input parameter\r\n",
+							"source_relative_path = input_folder_path[len(source_container_name):None]\r\n",
+							"displayHTML(\"source_relative_path: \")\r\n",
+							"displayHTML(source_relative_path)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"#Output File\r\n",
+							"output_file_names = input_file.split(\".\")\r\n",
+							"output_file_name = output_file_names[0]\r\n",
+							"displayHTML(\"output_file_name: \")\r\n",
+							"displayHTML(output_file_name)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"#Load the input to a data frame so we can process it and extract the day month and year from the path with a regex\r\n",
+							"\r\n",
+							"from pyspark.sql.types import StructType,StructField, StringType, IntegerType\r\n",
+							"input_data = [(input_file, input_folder_path, input_storageaccount, source_container_name, source_relative_path)]\r\n",
+							"\r\n",
+							"input_schema = StructType([ \\\r\n",
+							"    StructField(\"input_file\", StringType(), True), \\\r\n",
+							"    StructField(\"input_folder_path\", StringType(), True), \\\r\n",
+							"    StructField(\"input_storageaccount\", StringType(), True), \\\r\n",
+							"    StructField(\"source_container_name\", StringType(), True), \\\r\n",
+							"    StructField(\"source_relative_path\", StringType(), True) \\\r\n",
+							"  ])\r\n",
+							" \r\n",
+							"inputDf = spark.createDataFrame(data=input_data, schema=input_schema)\r\n",
+							"inputDf = inputDf.withColumn(\"Year\", regexp_extract(inputDf.source_relative_path, \"Year=(.+?)/\", 1))\r\n",
+							"inputDf = inputDf.withColumn(\"Month\", regexp_extract(inputDf.source_relative_path, \"Month=(.+?)/\", 1))\r\n",
+							"inputDf = inputDf.withColumn(\"Day\", regexp_extract(inputDf.source_relative_path, \"Day=(.*)\", 1))\r\n",
+							"\r\n",
+							"inputDf.printSchema()\r\n",
+							"inputDf.show(truncate=False)"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Load the input file to a data frame and check the schema\r\n",
+							"\r\n",
+							"source_file_name = input_file\r\n",
+							"input_storageaccount = input_storageaccount\r\n",
+							"inputPath = 'abfss://%s@%s.dfs.core.windows.net/%s' % (source_container_name, input_storageaccount, source_relative_path)\r\n",
+							"displayHTML(\"inputPath: %s</br>\" % inputPath)\r\n",
+							"inputStreamDf = spark.read.format('avro').load(inputPath)\r\n",
+							"\r\n",
+							"inputStreamDf.printSchema\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"# Convert the body field to a string and select fields I want and rename the message type column to something friendlier\r\n",
+							"\r\n",
+							"inputStreamDf = inputStreamDf.withColumn(\"Body\", expr(\"CAST(Body as String)\"))\r\n",
+							"inputStreamDf = inputStreamDf.select(inputStreamDf.Body, inputStreamDf.EnqueuedTimeUtc, inputStreamDf.Properties.CustomerID.member2, inputStreamDf.Properties.Year.member2, inputStreamDf.Properties.Month.member2, inputStreamDf.Properties.Day.member2)\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[CustomerID].member2\", \"CustomerID\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Year].member2\", \"Year\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Month].member2\", \"Month\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Day].member2\", \"Day\")\r\n",
+							"\r\n",
+							"# Add the year month and day that originally came from the path to the data frame for partitioning later\r\n",
+							"\r\n",
+							"\r\n",
+							"year = inputDf.first().Year\r\n",
+							"month = inputDf.first().Month\r\n",
+							"day = inputDf.first().Day\r\n",
+							"#inputStreamDf = inputStreamDf.withColumn(\"Year\", lit(year))\r\n",
+							"#inputStreamDf = inputStreamDf.withColumn(\"Month\", lit(month))\r\n",
+							"#inputStreamDf = inputStreamDf.withColumn(\"Day\", lit(day))\r\n",
+							"inputStreamDf = inputStreamDf.withColumn(\"File\", lit(output_file_name))\r\n",
+							"\r\n",
+							"display(inputStreamDf)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Write out the data frame to the new location, using the partitioning will split out the data into folders for different message types and also we will include the original file name as a partition folder too\r\n",
+							"\r\n",
+							"target_storageaccount_name = input_storageaccount\r\n",
+							"target_container_name = \"datalake\"\r\n",
+							"target_relative_path = \"Raw/Customer\"\r\n",
+							"\r\n",
+							"target_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (target_container_name, target_storageaccount_name, target_relative_path)\r\n",
+							"\r\n",
+							"inputStreamDf.write.partitionBy(\"Year\", \"Month\", \"Day\", \"File\").format(\"parquet\").mode(\"append\").save(target_path)"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/StreammingLandOrders')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "poolstreaming",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "1268b35d-a6a9-4b6a-b73f-f9d668aa2abe"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Synapse/workspaces/saeventhubdemo/bigDataPools/poolstreaming",
+						"name": "poolstreaming",
+						"type": "Spark",
+						"endpoint": "https://saeventhubdemo.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/poolstreaming",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# This cell is generated from runtime parameters. Learn more: https://go.microsoft.com/fwlink/?linkid=2161015\r\n",
+							"#input_file = \"15-05-55.avro\"\r\n",
+							"#input_folder_path = \"eventhub/eh2by1/orderheader/0/2022/06/02\"\r\n",
+							"#input_storageaccount = \"2by1datalake\""
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Section which just displays some info for troubleshooting\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"from pyspark.sql.functions import split\r\n",
+							"\r\n",
+							"\r\n",
+							"displayHTML(\"Input Parameters:</br>\")\r\n",
+							"displayHTML(\"input_file: %s</br>\" % input_file)\r\n",
+							"displayHTML(\"input_folder_Path: %s</br>\" % input_folder_path)\r\n",
+							"displayHTML(\"input_storageaccount: %s</br>\" % input_storageaccount)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"\r\n",
+							"#Get the container from the input parameter\r\n",
+							"folderNames = input_folder_path.split(\"/\")\r\n",
+							"source_container_name = folderNames[0]\r\n",
+							"displayHTML(\"source_container_name: \")\r\n",
+							"displayHTML(source_container_name)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"#Get the relative path from the input parameter\r\n",
+							"source_relative_path = input_folder_path[len(source_container_name):None]\r\n",
+							"displayHTML(\"source_relative_path: \")\r\n",
+							"displayHTML(source_relative_path)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"#Output File\r\n",
+							"output_file_names = input_file.split(\".\")\r\n",
+							"output_file_name = output_file_names[0]\r\n",
+							"displayHTML(\"output_file_name: \")\r\n",
+							"displayHTML(output_file_name)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"#Load the input to a data frame so we can process it and extract the day month and year from the path with a regex\r\n",
+							"\r\n",
+							"from pyspark.sql.types import StructType,StructField, StringType, IntegerType\r\n",
+							"input_data = [(input_file, input_folder_path, input_storageaccount, source_container_name, source_relative_path)]\r\n",
+							"\r\n",
+							"input_schema = StructType([ \\\r\n",
+							"    StructField(\"input_file\", StringType(), True), \\\r\n",
+							"    StructField(\"input_folder_path\", StringType(), True), \\\r\n",
+							"    StructField(\"input_storageaccount\", StringType(), True), \\\r\n",
+							"    StructField(\"source_container_name\", StringType(), True), \\\r\n",
+							"    StructField(\"source_relative_path\", StringType(), True) \\\r\n",
+							"  ])\r\n",
+							" \r\n",
+							"inputDf = spark.createDataFrame(data=input_data, schema=input_schema)\r\n",
+							"inputDf = inputDf.withColumn(\"Year\", regexp_extract(inputDf.source_relative_path, \"Year=(.+?)/\", 1))\r\n",
+							"inputDf = inputDf.withColumn(\"Month\", regexp_extract(inputDf.source_relative_path, \"Month=(.+?)/\", 1))\r\n",
+							"inputDf = inputDf.withColumn(\"Day\", regexp_extract(inputDf.source_relative_path, \"Day=(.*)\", 1))\r\n",
+							"\r\n",
+							"inputDf.printSchema()\r\n",
+							"inputDf.show(truncate=False)"
+						],
+						"outputs": [],
+						"execution_count": 13
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Load the input file to a data frame and check the schema\r\n",
+							"\r\n",
+							"source_file_name = input_file\r\n",
+							"input_storageaccount = input_storageaccount\r\n",
+							"inputPath = 'abfss://%s@%s.dfs.core.windows.net/%s' % (source_container_name, input_storageaccount, source_relative_path)\r\n",
+							"displayHTML(\"inputPath: %s</br>\" % inputPath)\r\n",
+							"inputStreamDf = spark.read.format('avro').load(inputPath)\r\n",
+							"\r\n",
+							"inputStreamDf.printSchema\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 17
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"# Convert the body field to a string and select fields I want and rename the message type column to something friendlier\r\n",
+							"\r\n",
+							"inputStreamDf = inputStreamDf.withColumn(\"Body\", expr(\"CAST(Body as String)\"))\r\n",
+							"inputStreamDf = inputStreamDf.select(inputStreamDf.Body, inputStreamDf.EnqueuedTimeUtc, inputStreamDf.Properties.SalesOrderID.member2, inputStreamDf.Properties.Year.member2, inputStreamDf.Properties.Month.member2, inputStreamDf.Properties.Day.member2)\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[SalesOrderID].member2\", \"SalesOrderID\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Year].member2\", \"Year\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Month].member2\", \"Month\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Day].member2\", \"Day\")\r\n",
+							"\r\n",
+							"# Add the year month and day that originally came from the path to the data frame for partitioning later\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"inputStreamDf = inputStreamDf.withColumn(\"File\", lit(output_file_name))\r\n",
+							"\r\n",
+							"display(inputStreamDf)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Write out the data frame to the new location, using the partitioning will split out the data into folders for different message types and also we will include the original file name as a partition folder too\r\n",
+							"\r\n",
+							"target_storageaccount_name = input_storageaccount\r\n",
+							"target_container_name = \"datalake\"\r\n",
+							"target_relative_path = \"Raw/OrderHeader\"\r\n",
+							"\r\n",
+							"target_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (target_container_name, target_storageaccount_name, target_relative_path)\r\n",
+							"\r\n",
+							"inputStreamDf.write.partitionBy(\"Year\", \"Month\", \"Day\", \"File\").format(\"parquet\").mode(\"append\").save(target_path)"
+						],
+						"outputs": [],
+						"execution_count": 19
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/StreammingProdCostHist')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "poolstreaming",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "01863cd4-6bb7-4f21-b6be-9e58e794e6af"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Synapse/workspaces/saeventhubdemo/bigDataPools/poolstreaming",
+						"name": "poolstreaming",
+						"type": "Spark",
+						"endpoint": "https://saeventhubdemo.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/poolstreaming",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Section which just displays some info for troubleshooting\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"from pyspark.sql.functions import split\r\n",
+							"\r\n",
+							"\r\n",
+							"displayHTML(\"Input Parameters:</br>\")\r\n",
+							"displayHTML(\"input_file: %s</br>\" % input_file)\r\n",
+							"displayHTML(\"input_folder_Path: %s</br>\" % input_folder_path)\r\n",
+							"displayHTML(\"input_storageaccount: %s</br>\" % input_storageaccount)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"\r\n",
+							"#Get the container from the input parameter\r\n",
+							"folderNames = input_folder_path.split(\"/\")\r\n",
+							"source_container_name = folderNames[0]\r\n",
+							"displayHTML(\"source_container_name: \")\r\n",
+							"displayHTML(source_container_name)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"#Get the relative path from the input parameter\r\n",
+							"source_relative_path = input_folder_path[len(source_container_name):None]\r\n",
+							"displayHTML(\"source_relative_path: \")\r\n",
+							"displayHTML(source_relative_path)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"#Output File\r\n",
+							"output_file_names = input_file.split(\".\")\r\n",
+							"output_file_name = output_file_names[0]\r\n",
+							"displayHTML(\"output_file_name: \")\r\n",
+							"displayHTML(output_file_name)\r\n",
+							"displayHTML(\"</br>\")\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"#Load the input to a data frame so we can process it and extract the day month and year from the path with a regex\r\n",
+							"\r\n",
+							"from pyspark.sql.types import StructType,StructField, StringType, IntegerType\r\n",
+							"input_data = [(input_file, input_folder_path, input_storageaccount, source_container_name, source_relative_path)]\r\n",
+							"\r\n",
+							"input_schema = StructType([ \\\r\n",
+							"    StructField(\"input_file\", StringType(), True), \\\r\n",
+							"    StructField(\"input_folder_path\", StringType(), True), \\\r\n",
+							"    StructField(\"input_storageaccount\", StringType(), True), \\\r\n",
+							"    StructField(\"source_container_name\", StringType(), True), \\\r\n",
+							"    StructField(\"source_relative_path\", StringType(), True) \\\r\n",
+							"  ])\r\n",
+							" \r\n",
+							"inputDf = spark.createDataFrame(data=input_data, schema=input_schema)\r\n",
+							"inputDf = inputDf.withColumn(\"Year\", regexp_extract(inputDf.source_relative_path, \"Year=(.+?)/\", 1))\r\n",
+							"inputDf = inputDf.withColumn(\"Month\", regexp_extract(inputDf.source_relative_path, \"Month=(.+?)/\", 1))\r\n",
+							"inputDf = inputDf.withColumn(\"Day\", regexp_extract(inputDf.source_relative_path, \"Day=(.*)\", 1))\r\n",
+							"\r\n",
+							"inputDf.printSchema()\r\n",
+							"inputDf.show(truncate=False)"
+						],
+						"outputs": [],
+						"execution_count": 13
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Load the input file to a data frame and check the schema\r\n",
+							"\r\n",
+							"source_file_name = input_file\r\n",
+							"input_storageaccount = input_storageaccount\r\n",
+							"inputPath = 'abfss://%s@%s.dfs.core.windows.net/%s' % (source_container_name, input_storageaccount, source_relative_path)\r\n",
+							"displayHTML(\"inputPath: %s</br>\" % inputPath)\r\n",
+							"inputStreamDf = spark.read.format('avro').load(inputPath)\r\n",
+							"\r\n",
+							"inputStreamDf.printSchema\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 17
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"# Convert the body field to a string and select fields I want and rename the message type column to something friendlier\r\n",
+							"\r\n",
+							"inputStreamDf = inputStreamDf.withColumn(\"Body\", expr(\"CAST(Body as String)\"))\r\n",
+							"inputStreamDf = inputStreamDf.select(inputStreamDf.Body, inputStreamDf.EnqueuedTimeUtc, inputStreamDf.Properties.ProductID.member2, inputStreamDf.Properties.Year.member2, inputStreamDf.Properties.Month.member2, inputStreamDf.Properties.Day.member2)\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[ProductID].member2\", \"ProductID\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Year].member2\", \"Year\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Month].member2\", \"Month\")\r\n",
+							"inputStreamDf = inputStreamDf.withColumnRenamed(\"Properties[Day].member2\", \"Day\")\r\n",
+							"\r\n",
+							"# Add the year month and day that originally came from the path to the data frame for partitioning later\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"inputStreamDf = inputStreamDf.withColumn(\"File\", lit(output_file_name))\r\n",
+							"\r\n",
+							"display(inputStreamDf)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Write out the data frame to the new location, using the partitioning will split out the data into folders for different message types and also we will include the original file name as a partition folder too\r\n",
+							"\r\n",
+							"target_storageaccount_name = input_storageaccount\r\n",
+							"target_container_name = \"datalake\"\r\n",
+							"target_relative_path = \"Raw/ProdCostHist\"\r\n",
+							"\r\n",
+							"target_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (target_container_name, target_storageaccount_name, target_relative_path)\r\n",
+							"\r\n",
+							"inputStreamDf.write.partitionBy(\"Year\", \"Month\", \"Day\", \"File\").format(\"parquet\").mode(\"append\").save(target_path)"
+						],
+						"outputs": [],
+						"execution_count": 19
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/poolstreaming')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Medium",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralus"
+		}
+	]
+}

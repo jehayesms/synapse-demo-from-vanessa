@@ -1,0 +1,45 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "saeventhubdemo"
+		},
+		"saeventhubdemo-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"adlseventhubdata_properties_typeProperties_url": {
+			"value": "https://eventhubdatajh.dfs.core.windows.net/"
+		},
+		"saeventhubdemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://synapseadlsjh.dfs.core.windows.net"
+		},
+		"Trigger Customers Streamming_properties_Batching_parameters_sourceFolderPath": {
+			"value": "@trigger().outputs.body.folderPath"
+		},
+		"Trigger Customers Streamming_properties_Batching_parameters_sourceFile": {
+			"value": "@trigger().outputs.body.fileName"
+		},
+		"Trigger Customers Streamming_properties_typeProperties_scope": {
+			"value": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
+		},
+		"Trigger OrderHeader Streamming_properties_Batching_OrderHeader_parameters_sourceFolderPath": {
+			"value": "@trigger().outputs.body.folderPath"
+		},
+		"Trigger OrderHeader Streamming_properties_Batching_OrderHeader_parameters_sourceFile": {
+			"value": "@trigger().outputs.body.fileName"
+		},
+		"Trigger OrderHeader Streamming_properties_typeProperties_scope": {
+			"value": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
+		},
+		"Trigger ProdCostHist Streamming_properties_Batching_ProdCostHist_parameters_sourceFolderPath": {
+			"value": "@trigger().outputs.body.folderPath"
+		},
+		"Trigger ProdCostHist Streamming_properties_Batching_ProdCostHist_parameters_sourceFile": {
+			"value": "@trigger().outputs.body.fileName"
+		},
+		"Trigger ProdCostHist Streamming_properties_typeProperties_scope": {
+			"value": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
+		}
+	}
+}

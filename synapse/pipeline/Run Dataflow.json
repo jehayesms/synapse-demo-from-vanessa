@@ -23,10 +23,6 @@
 								"value": "'@{pipeline().parameters.container}'",
 								"type": "Expression"
 							},
-							"folder": {
-								"value": "'@{pipeline().parameters.folder}'",
-								"type": "Expression"
-							},
 							"file": {
 								"value": "'@{pipeline().parameters.file}'",
 								"type": "Expression"
@@ -52,7 +48,7 @@
 			},
 			"file": {
 				"type": "string",
-				"defaultValue": "@triggerBody().folderPath"
+				"defaultValue": "@triggerBody().fileName"
 			}
 		},
 		"annotations": []

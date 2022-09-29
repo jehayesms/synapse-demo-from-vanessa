@@ -333,10 +333,6 @@
 										"value": "'@{pipeline().parameters.container}'",
 										"type": "Expression"
 									},
-									"folder": {
-										"value": "'@{pipeline().parameters.folder}'",
-										"type": "Expression"
-									},
 									"file": {
 										"value": "'@{pipeline().parameters.file}'",
 										"type": "Expression"
@@ -371,13 +367,14 @@
 					},
 					"file": {
 						"type": "string",
-						"defaultValue": "@triggerBody().folderPath"
+						"defaultValue": "@triggerBody().fileName"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -663,9 +660,9 @@
 					],
 					"scriptLines": [
 						"parameters{",
-						"     container as string,",
-						"     folder as string,",
-						"     file as string",
+						"     container as string ('captureddata'),",
+						"     file as string ('39.avro'),",
+						"     folder as string ('ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13')",
 						"}",
 						"source(output(",
 						"          SequenceNumber as long,",
@@ -680,7 +677,7 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'avro',",
 						"     fileSystem: ($container),",
-						"     folderPath: ($folder),",
+						"     folderPath: ('ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13'),",
 						"     fileName: ($file)) ~> souirce",
 						"select1 cast(output(",
 						"          Body as string",
@@ -850,7 +847,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "011ed69b-4d9f-4f47-9f25-3f3014348723"
+						"spark.autotune.trackingId": "777a483c-2db2-42e6-aa49-89e3d6039dc8"
 					}
 				},
 				"metadata": {
@@ -875,7 +872,8 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},

@@ -1,5 +1,5 @@
 {
-	"name": "Dataflow1",
+	"name": "Move data to dataflow parquet",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,7 +9,7 @@
 						"referenceName": "adlseventhubdata",
 						"type": "LinkedServiceReference"
 					},
-					"name": "source1"
+					"name": "souirce"
 				}
 			],
 			"sinks": [
@@ -33,6 +33,11 @@
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     container as string,",
+				"     folder as string,",
+				"     file as string",
+				"}",
 				"source(output(",
 				"          SequenceNumber as long,",
 				"          Offset as string,",
@@ -45,14 +50,14 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'avro',",
-				"     fileSystem: 'captureddata',",
-				"     folderPath: 'ehsynapsedemo/eventhubsynapse/0/2022/09/27/23/58',",
-				"     fileName: '39.avro') ~> source1",
+				"     fileSystem: ($container),",
+				"     folderPath: ($folder),",
+				"     fileName: ($file)) ~> souirce",
 				"select1 cast(output(",
 				"          Body as string",
 				"     ),",
 				"     errors: true) ~> cast1",
-				"source1 select(mapColumn(",
+				"souirce select(mapColumn(",
 				"          SequenceNumber,",
 				"          Offset,",
 				"          EnqueuedTimeUtc,",

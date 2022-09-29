@@ -1,10 +1,10 @@
 {
-	"name": "Pipeline 1",
+	"name": "Run Dataflow",
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
+				"name": "Load with Dataflow",
+				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,94 +15,32 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "AvroSource",
-						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						}
+					"dataflow": {
+						"referenceName": "Move data to dataflow parquet",
+						"type": "DataFlowReference"
 					},
-					"sink": {
-						"type": "ParquetSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
-						},
-						"formatSettings": {
-							"type": "ParquetWriteSettings"
-						}
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
 					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"name": "SequenceNumber",
-									"type": "Int64",
-									"physicalType": "long"
-								},
-								"sink": {
-									"name": "SequenceNumber",
-									"type": "Int64",
-									"physicalType": "INT_64"
-								}
-							},
-							{
-								"source": {
-									"name": "Offset",
-									"type": "String",
-									"physicalType": "string"
-								},
-								"sink": {
-									"name": "Offset",
-									"type": "String",
-									"physicalType": "UTF8"
-								}
-							},
-							{
-								"source": {
-									"name": "EnqueuedTimeUtc",
-									"type": "String",
-									"physicalType": "string"
-								},
-								"sink": {
-									"name": "EnqueuedTimeUtc",
-									"type": "String",
-									"physicalType": "UTF8"
-								}
-							},
-							{
-								"source": {
-									"name": "Body",
-									"physicalType": "null | bytes"
-								},
-								"sink": {
-									"name": "Body"
-								}
-							}
-						],
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "eventhubavro",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "parquetds",
-						"type": "DatasetReference"
-					}
-				]
+					"traceLevel": "Fine"
+				}
 			}
 		],
+		"parameters": {
+			"container": {
+				"type": "string",
+				"defaultValue": "captureddata"
+			},
+			"folder": {
+				"type": "string",
+				"defaultValue": "@triggerBody().folderPath"
+			},
+			"file": {
+				"type": "string",
+				"defaultValue": "@triggerBody().folderPath"
+			}
+		},
 		"annotations": []
 	}
 }

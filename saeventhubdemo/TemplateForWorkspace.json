@@ -532,7 +532,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -867,7 +867,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "a82b1041-6516-412e-8d86-4229041f83dd"
+						"spark.autotune.trackingId": "430ab7a8-3ba7-4039-9c82-2d12a6b1ff1c"
 					}
 				},
 				"metadata": {
@@ -1096,7 +1096,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "1268b35d-a6a9-4b6a-b73f-f9d668aa2abe"
+						"spark.autotune.trackingId": "761d7b79-107d-4585-947f-e057c07c31a7"
 					}
 				},
 				"metadata": {
@@ -1341,7 +1341,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "01863cd4-6bb7-4f21-b6be-9e58e794e6af"
+						"spark.autotune.trackingId": "f17ddbd9-0d0e-4356-aaa8-bc48325c94aa"
 					}
 				},
 				"metadata": {

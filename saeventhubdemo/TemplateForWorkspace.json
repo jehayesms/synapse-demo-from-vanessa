@@ -27,6 +27,18 @@
 			"type": "string",
 			"defaultValue": "@trigger().outputs.body.fileName"
 		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_container": {
+			"type": "string",
+			"defaultValue": "captureddata"
+		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folder": {
+			"type": "string",
+			"defaultValue": "@triggerBody().folderPath"
+		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_file": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
 		"Trigger Customers Streamming_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"
@@ -295,14 +307,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"name": "[concat(parameters('workspaceName'), '/Run Dataflow')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data1",
-						"type": "Copy",
+						"name": "Load with Dataflow",
+						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -313,105 +325,59 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "AvroSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								}
-							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "SequenceNumber",
-											"type": "Int64",
-											"physicalType": "long"
-										},
-										"sink": {
-											"name": "SequenceNumber",
-											"type": "Int64",
-											"physicalType": "INT_64"
-										}
+							"dataflow": {
+								"referenceName": "Move data to dataflow parquet",
+								"type": "DataFlowReference",
+								"parameters": {
+									"container": {
+										"value": "'@{pipeline().parameters.container}'",
+										"type": "Expression"
 									},
-									{
-										"source": {
-											"name": "Offset",
-											"type": "String",
-											"physicalType": "string"
-										},
-										"sink": {
-											"name": "Offset",
-											"type": "String",
-											"physicalType": "UTF8"
-										}
+									"folder": {
+										"value": "'@{pipeline().parameters.folder}'",
+										"type": "Expression"
 									},
-									{
-										"source": {
-											"name": "EnqueuedTimeUtc",
-											"type": "String",
-											"physicalType": "string"
-										},
-										"sink": {
-											"name": "EnqueuedTimeUtc",
-											"type": "String",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"name": "Body",
-											"physicalType": "null | bytes"
-										},
-										"sink": {
-											"name": "Body"
-										}
+									"file": {
+										"value": "'@{pipeline().parameters.file}'",
+										"type": "Expression"
 									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
+								},
+								"datasetParameters": {
+									"souirce": {},
+									"sink1": {}
 								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "eventhubavro",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "parquetds",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"parameters": {
+					"container": {
+						"type": "string",
+						"defaultValue": "captureddata"
+					},
+					"folder": {
+						"type": "string",
+						"defaultValue": "@triggerBody().folderPath"
+					},
+					"file": {
+						"type": "string",
+						"defaultValue": "@triggerBody().folderPath"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/eventhubavro')]",
-				"[concat(variables('workspaceId'), '/datasets/parquetds')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
 			]
 		},
 		{
@@ -543,6 +509,17 @@
 							"sourceFolderPath": "[parameters('Trigger Customers Streamming_properties_Batching_parameters_sourceFolderPath')]",
 							"sourceFile": "[parameters('Trigger Customers Streamming_properties_Batching_parameters_sourceFile')]"
 						}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "Run Dataflow",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"container": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_container')]",
+							"folder": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_folder')]",
+							"file": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_file')]"
+						}
 					}
 				],
 				"type": "BlobEventsTrigger",
@@ -557,7 +534,8 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/Batching')]"
+				"[concat(variables('workspaceId'), '/pipelines/Batching')]",
+				"[concat(variables('workspaceId'), '/pipelines/Run Dataflow')]"
 			]
 		},
 		{
@@ -648,7 +626,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Dataflow1')]",
+			"name": "[concat(parameters('workspaceName'), '/Move data to dataflow parquet')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -660,7 +638,7 @@
 								"referenceName": "adlseventhubdata",
 								"type": "LinkedServiceReference"
 							},
-							"name": "source1"
+							"name": "souirce"
 						}
 					],
 					"sinks": [
@@ -684,6 +662,11 @@
 						}
 					],
 					"scriptLines": [
+						"parameters{",
+						"     container as string,",
+						"     folder as string,",
+						"     file as string",
+						"}",
 						"source(output(",
 						"          SequenceNumber as long,",
 						"          Offset as string,",
@@ -696,14 +679,14 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'avro',",
-						"     fileSystem: 'captureddata',",
-						"     folderPath: 'ehsynapsedemo/eventhubsynapse/0/2022/09/27/23/58',",
-						"     fileName: '39.avro') ~> source1",
+						"     fileSystem: ($container),",
+						"     folderPath: ($folder),",
+						"     fileName: ($file)) ~> souirce",
 						"select1 cast(output(",
 						"          Body as string",
 						"     ),",
 						"     errors: true) ~> cast1",
-						"source1 select(mapColumn(",
+						"souirce select(mapColumn(",
 						"          SequenceNumber,",
 						"          Offset,",
 						"          EnqueuedTimeUtc,",
@@ -867,7 +850,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "430ab7a8-3ba7-4039-9c82-2d12a6b1ff1c"
+						"spark.autotune.trackingId": "011ed69b-4d9f-4f47-9f25-3f3014348723"
 					}
 				},
 				"metadata": {
@@ -892,8 +875,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -1096,7 +1078,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "761d7b79-107d-4585-947f-e057c07c31a7"
+						"spark.autotune.trackingId": "b793dcf6-5eb8-4483-be33-d15c3c969010"
 					}
 				},
 				"metadata": {
@@ -1121,8 +1103,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -1341,7 +1322,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "f17ddbd9-0d0e-4356-aaa8-bc48325c94aa"
+						"spark.autotune.trackingId": "93352ebf-b74d-4bfc-99dc-18f3f0e5bb10"
 					}
 				},
 				"metadata": {
@@ -1366,8 +1347,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},

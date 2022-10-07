@@ -51,7 +51,7 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'avro',",
 				"     fileSystem: ($container),",
-				"     folderPath: ('ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13'),",
+				"     folderPath: ($folder),",
 				"     fileName: ($file)) ~> souirce",
 				"select1 cast(output(",
 				"          Body as string",

@@ -345,8 +345,7 @@
 								"datasetParameters": {
 									"souirce": {},
 									"sink1": {}
-								},
-								"linkedServiceParameters": {}
+								}
 							},
 							"staging": {},
 							"compute": {
@@ -376,8 +375,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
 			]
 		},
 		{
@@ -694,7 +692,7 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'avro',",
 						"     fileSystem: ($container),",
-						"     folderPath: ('ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13'),",
+						"     folderPath: ($folder),",
 						"     fileName: ($file)) ~> souirce",
 						"select1 cast(output(",
 						"          Body as string",
@@ -864,7 +862,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "8d375f00-eb1d-4d88-9cf8-65db17b3d585"
+						"spark.autotune.trackingId": "de14fc4e-f49c-4c03-a69f-e4370ea69809"
 					}
 				},
 				"metadata": {
@@ -889,8 +887,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},

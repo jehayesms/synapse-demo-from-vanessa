@@ -34,7 +34,7 @@
 			],
 			"scriptLines": [
 				"parameters{",
-				"     container as string ('captureddata'),",
+				"     container as string,",
 				"     file as string,",
 				"     folder as string",
 				"}",

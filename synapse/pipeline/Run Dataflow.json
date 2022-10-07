@@ -19,10 +19,6 @@
 						"referenceName": "Move data to dataflow parquet",
 						"type": "DataFlowReference",
 						"parameters": {
-							"container": {
-								"value": "'@{pipeline().parameters.container}'",
-								"type": "Expression"
-							},
 							"file": {
 								"value": "'@{pipeline().parameters.file}'",
 								"type": "Expression"

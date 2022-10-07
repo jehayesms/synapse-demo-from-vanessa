@@ -314,6 +314,7 @@
 				"activities": [
 					{
 						"name": "Load with Dataflow",
+						"description": "Added descr to trigger change",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -345,7 +346,8 @@
 								"datasetParameters": {
 									"souirce": {},
 									"sink1": {}
-								}
+								},
+								"linkedServiceParameters": {}
 							},
 							"staging": {},
 							"compute": {
@@ -375,7 +377,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -862,7 +865,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "de14fc4e-f49c-4c03-a69f-e4370ea69809"
+						"spark.autotune.trackingId": "e2348202-c784-41ce-9623-3ddacc38f921"
 					}
 				},
 				"metadata": {
@@ -887,7 +890,8 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},

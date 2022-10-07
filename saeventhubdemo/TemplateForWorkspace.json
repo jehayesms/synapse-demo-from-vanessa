@@ -33,11 +33,11 @@
 		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folder": {
 			"type": "string",
-			"defaultValue": "@triggerBody().folderPath"
+			"defaultValue": "@trigger().outputs.body.folderPath"
 		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_file": {
 			"type": "string",
-			"defaultValue": "@triggerBody().fileName"
+			"defaultValue": "@trigger().outputs.body.fileName"
 		},
 		"Trigger Customers Streamming_properties_typeProperties_scope": {
 			"type": "string",
@@ -363,8 +363,7 @@
 				},
 				"parameters": {
 					"container": {
-						"type": "string",
-						"defaultValue": "eventhubdatajh"
+						"type": "string"
 					},
 					"folder": {
 						"type": "string"
@@ -376,7 +375,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -647,9 +647,9 @@
 				"typeProperties": {
 					"sources": [
 						{
-							"linkedService": {
-								"referenceName": "adlseventhubdata",
-								"type": "LinkedServiceReference"
+							"dataset": {
+								"referenceName": "eventhubavro",
+								"type": "DatasetReference"
 							},
 							"name": "souirce"
 						}
@@ -690,11 +690,7 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'avro',",
-						"     fileSystem: ($container),",
-						"     folderPath: ($folder),",
-						"     fileName: ($file)) ~> souirce",
+						"     ignoreNoFilesFound: false) ~> souirce",
 						"select1 cast(output(",
 						"          Body as string",
 						"     ),",
@@ -728,7 +724,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/adlseventhubdata')]",
+				"[concat(variables('workspaceId'), '/datasets/eventhubavro')]",
 				"[concat(variables('workspaceId'), '/datasets/parquetds')]"
 			]
 		},

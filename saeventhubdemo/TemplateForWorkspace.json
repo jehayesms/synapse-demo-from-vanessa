@@ -336,12 +336,17 @@
 									"file": {
 										"value": "'@{pipeline().parameters.file}'",
 										"type": "Expression"
+									},
+									"folder": {
+										"value": "'@{pipeline().parameters.folder}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
 									"souirce": {},
 									"sink1": {}
-								}
+								},
+								"linkedServiceParameters": {}
 							},
 							"staging": {},
 							"compute": {
@@ -362,12 +367,10 @@
 						"defaultValue": "captureddata"
 					},
 					"folder": {
-						"type": "string",
-						"defaultValue": "@triggerBody().folderPath"
+						"type": "string"
 					},
 					"file": {
-						"type": "string",
-						"defaultValue": "@triggerBody().fileName"
+						"type": "string"
 					}
 				},
 				"annotations": []
@@ -426,6 +429,20 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/saeventhubdemo-WorkspaceDefaultStorage')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/PowerBIWorkspace1')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "PowerBIWorkspace",
+				"typeProperties": {
+					"workspaceID": "b87a3e7d-56e0-48c9-93f9-16a64a06b149",
+					"tenantID": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/adlseventhubdata')]",
@@ -660,9 +677,9 @@
 					],
 					"scriptLines": [
 						"parameters{",
-						"     container as string ('captureddata'),",
-						"     file as string ('39.avro'),",
-						"     folder as string ('ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13')",
+						"     container as string,",
+						"     file as string,",
+						"     folder as string",
 						"}",
 						"source(output(",
 						"          SequenceNumber as long,",
@@ -847,7 +864,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "777a483c-2db2-42e6-aa49-89e3d6039dc8"
+						"spark.autotune.trackingId": "8d375f00-eb1d-4d88-9cf8-65db17b3d585"
 					}
 				},
 				"metadata": {

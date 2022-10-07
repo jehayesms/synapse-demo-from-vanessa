@@ -20,7 +20,7 @@
 					"type": "PipelineReference"
 				},
 				"parameters": {
-					"container": "captureddata",
+					"container": "eventhubdatajh",
 					"folder": "@triggerBody().folderPath",
 					"file": "@triggerBody().fileName"
 				}

@@ -21,8 +21,8 @@
 				},
 				"parameters": {
 					"container": "eventhubdatajh",
-					"folder": "@triggerBody().folderPath",
-					"file": "@triggerBody().fileName"
+					"folder": "@trigger().outputs.body.folderPath",
+					"file": "@trigger().outputs.body.fileName"
 				}
 			}
 		],

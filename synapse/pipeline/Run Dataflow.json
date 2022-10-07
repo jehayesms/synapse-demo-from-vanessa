@@ -43,12 +43,10 @@
 				"defaultValue": "captureddata"
 			},
 			"folder": {
-				"type": "string",
-				"defaultValue": "@triggerBody().folderPath"
+				"type": "string"
 			},
 			"file": {
-				"type": "string",
-				"defaultValue": "@triggerBody().fileName"
+				"type": "string"
 			}
 		},
 		"annotations": []

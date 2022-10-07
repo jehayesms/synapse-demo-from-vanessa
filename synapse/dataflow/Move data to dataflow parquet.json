@@ -5,9 +5,9 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"linkedService": {
-						"referenceName": "adlseventhubdata",
-						"type": "LinkedServiceReference"
+					"dataset": {
+						"referenceName": "eventhubavro",
+						"type": "DatasetReference"
 					},
 					"name": "souirce"
 				}
@@ -40,10 +40,7 @@
 				"}",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     format: 'avro',",
-				"     fileSystem: ($folder),",
-				"     fileName: ($file)) ~> souirce",
+				"     ignoreNoFilesFound: false) ~> souirce",
 				"select1 cast(output(",
 				"          Body as string",
 				"     ),",

@@ -26,7 +26,8 @@
 							"file": {
 								"value": "'@{pipeline().parameters.file}'",
 								"type": "Expression"
-							}
+							},
+							"folder": "'ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13'"
 						}
 					},
 					"compute": {

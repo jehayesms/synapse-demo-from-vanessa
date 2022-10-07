@@ -21,7 +21,7 @@
 			"value": "@trigger().outputs.body.fileName"
 		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_container": {
-			"value": "captureddata"
+			"value": "eventhubdatajh"
 		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folder": {
 			"value": "@triggerBody().folderPath"

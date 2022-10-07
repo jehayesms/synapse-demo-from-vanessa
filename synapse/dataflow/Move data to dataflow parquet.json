@@ -35,8 +35,8 @@
 			"scriptLines": [
 				"parameters{",
 				"     container as string ('captureddata'),",
-				"     file as string ('39.avro'),",
-				"     folder as string ('ehsynapsedemo/eventhubsynapse/0/2022/09/29/13/13')",
+				"     file as string,",
+				"     folder as string",
 				"}",
 				"source(output(",
 				"          SequenceNumber as long,",

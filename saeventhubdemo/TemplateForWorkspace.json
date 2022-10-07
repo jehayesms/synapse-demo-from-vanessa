@@ -363,7 +363,7 @@
 				"parameters": {
 					"container": {
 						"type": "string",
-						"defaultValue": "captureddata"
+						"defaultValue": "eventhubdatajh"
 					},
 					"folder": {
 						"type": "string"
@@ -510,7 +510,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -691,7 +691,8 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'avro',",
-						"     fileSystem: ($folder),",
+						"     fileSystem: ($container),",
+						"     folderPath: ($folder),",
 						"     fileName: ($file)) ~> souirce",
 						"select1 cast(output(",
 						"          Body as string",

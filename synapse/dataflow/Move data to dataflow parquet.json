@@ -81,7 +81,11 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          each(match(startsWith(\"jsonBody\",name)),",
+				"               $0 = $$)",
+				"     )) ~> sink1"
 			]
 		}
 	}

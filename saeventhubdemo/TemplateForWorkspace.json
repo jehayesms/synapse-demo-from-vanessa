@@ -780,7 +780,11 @@
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1"
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          each(match(startsWith(\"jsonBody\",name)),",
+						"               $0 = $$)",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -1617,6 +1621,26 @@
 			},
 			"dependsOn": [],
 			"location": "centralus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://synapseadlsjh.dfs.core.windows.net/synapseadlsjhfs/parquet/part-00000-002c2750-3036-40b4-a70b-a4e1d16a8adc-c000.snappy.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
 		}
 	]
 }

@@ -22,7 +22,9 @@
 				"parameters": {
 					"container": "eventhubdatajh",
 					"folder": "@trigger().outputs.body.folderPath",
-					"file": "@trigger().outputs.body.fileName"
+					"file": "@trigger().outputs.body.fileName",
+					"folderdf": "@triggerBody().folderPath",
+					"filedf": "@triggerBody().fileName"
 				}
 			}
 		],

@@ -40,6 +40,12 @@
 					},
 					"traceLevel": "Fine"
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": []
 			}
 		],
 		"parameters": {
@@ -50,6 +56,12 @@
 				"type": "string"
 			},
 			"file": {
+				"type": "string"
+			},
+			"folderdf": {
+				"type": "string"
+			},
+			"filedf": {
 				"type": "string"
 			}
 		},

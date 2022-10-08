@@ -6,7 +6,14 @@
 				"name": "Load with Dataflow",
 				"description": "Added descr to trigger change",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Set foldername",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -21,7 +28,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"container": {
-								"value": "'@{pipeline().parameters.container}'",
+								"value": "'@{variables('containername')}'",
 								"type": "Expression"
 							},
 							"file": {
@@ -29,7 +36,7 @@
 								"type": "Expression"
 							},
 							"folder": {
-								"value": "'@{pipeline().parameters.folder}'",
+								"value": "'@{variables('foldername')}'",
 								"type": "Expression"
 							}
 						}
@@ -42,16 +49,40 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "Set containername",
 				"type": "SetVariable",
 				"dependsOn": [],
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "containername",
+					"value": {
+						"value": "@substring(pipeline().parameters.folder,0,indexof(pipeline().parameters.folder,'/'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set foldername",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set containername",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "foldername",
+					"value": {
+						"value": "@substring(pipeline().parameters.folder,add(indexof(pipeline().parameters.folder,'/'),1),sub(sub(length(pipeline().parameters.folder),indexof(pipeline().parameters.folder,'/')),1))",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
-			"container": {
-				"type": "string"
-			},
 			"folder": {
 				"type": "string"
 			},
@@ -63,6 +94,14 @@
 			},
 			"filedf": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"containername": {
+				"type": "String"
+			},
+			"foldername": {
+				"type": "String"
 			}
 		},
 		"annotations": []

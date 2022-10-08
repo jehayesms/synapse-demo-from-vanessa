@@ -5,9 +5,9 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "eventhubavro",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "adlseventhubdata",
+						"type": "LinkedServiceReference"
 					},
 					"name": "souirce"
 				}
@@ -38,17 +38,13 @@
 				"     file as string,",
 				"     folder as string",
 				"}",
-				"source(output(",
-				"          SequenceNumber as long,",
-				"          Offset as string,",
-				"          EnqueuedTimeUtc as string,",
-				"          SystemProperties as [string,(member0 as long, member1 as double, member2 as string, member3 as binary)],",
-				"          Properties as [string,(member0 as long, member1 as double, member2 as string, member3 as binary)],",
-				"          Body as binary",
-				"     ),",
-				"     allowSchemaDrift: true,",
+				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> souirce",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'avro',",
+				"     fileSystem: ($container),",
+				"     folderPath: ($folder),",
+				"     fileName: ($file)) ~> souirce",
 				"select1 cast(output(",
 				"          Body as string",
 				"     ),",

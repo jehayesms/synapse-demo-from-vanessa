@@ -20,14 +20,17 @@
 		"Trigger Customers Streamming_properties_Batching_parameters_sourceFile": {
 			"value": "@trigger().outputs.body.fileName"
 		},
-		"Trigger Customers Streamming_properties_Run Dataflow_parameters_container": {
-			"value": "eventhubdatajh"
-		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folder": {
 			"value": "@trigger().outputs.body.folderPath"
 		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_file": {
 			"value": "@trigger().outputs.body.fileName"
+		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folderdf": {
+			"value": "@triggerBody().folderPath"
+		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_filedf": {
+			"value": "@triggerBody().fileName"
 		},
 		"Trigger Customers Streamming_properties_typeProperties_scope": {
 			"value": "/subscriptions/2897cb88-8d37-4a9c-835a-a8a75dbd844d/resourceGroups/rgeventhubsynapse/providers/Microsoft.Storage/storageAccounts/eventhubdatajh"

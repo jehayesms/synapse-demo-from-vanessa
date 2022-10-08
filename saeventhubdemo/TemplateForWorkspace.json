@@ -27,10 +27,6 @@
 			"type": "string",
 			"defaultValue": "@trigger().outputs.body.fileName"
 		},
-		"Trigger Customers Streamming_properties_Run Dataflow_parameters_container": {
-			"type": "string",
-			"defaultValue": "eventhubdatajh"
-		},
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folder": {
 			"type": "string",
 			"defaultValue": "@trigger().outputs.body.folderPath"
@@ -38,6 +34,14 @@
 		"Trigger Customers Streamming_properties_Run Dataflow_parameters_file": {
 			"type": "string",
 			"defaultValue": "@trigger().outputs.body.fileName"
+		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folderdf": {
+			"type": "string",
+			"defaultValue": "@triggerBody().folderPath"
+		},
+		"Trigger Customers Streamming_properties_Run Dataflow_parameters_filedf": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
 		},
 		"Trigger Customers Streamming_properties_typeProperties_scope": {
 			"type": "string",
@@ -316,7 +320,14 @@
 						"name": "Load with Dataflow",
 						"description": "Added descr to trigger change",
 						"type": "ExecuteDataFlow",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "Set foldername",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -331,7 +342,7 @@
 								"type": "DataFlowReference",
 								"parameters": {
 									"container": {
-										"value": "'@{pipeline().parameters.container}'",
+										"value": "'@{variables('containername')}'",
 										"type": "Expression"
 									},
 									"file": {
@@ -339,14 +350,15 @@
 										"type": "Expression"
 									},
 									"folder": {
-										"value": "'@{pipeline().parameters.folder}'",
+										"value": "'@{variables('foldername')}'",
 										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
 									"souirce": {},
 									"sink1": {}
-								}
+								},
+								"linkedServiceParameters": {}
 							},
 							"staging": {},
 							"compute": {
@@ -355,6 +367,39 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Set containername",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "containername",
+							"value": {
+								"value": "@substring(pipeline().parameters.folder,0,indexof(pipeline().parameters.folder,'/'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set foldername",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set containername",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "foldername",
+							"value": {
+								"value": "@substring(pipeline().parameters.folder,add(indexof(pipeline().parameters.folder,'/'),1),sub(sub(length(pipeline().parameters.folder),indexof(pipeline().parameters.folder,'/')),1))",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -362,14 +407,25 @@
 					"cancelAfter": {}
 				},
 				"parameters": {
-					"container": {
-						"type": "string"
-					},
 					"folder": {
 						"type": "string"
 					},
 					"file": {
 						"type": "string"
+					},
+					"folderdf": {
+						"type": "string"
+					},
+					"filedf": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"containername": {
+						"type": "String"
+					},
+					"foldername": {
+						"type": "String"
 					}
 				},
 				"annotations": []
@@ -529,9 +585,10 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"container": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_container')]",
 							"folder": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_folder')]",
-							"file": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_file')]"
+							"file": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_file')]",
+							"folderdf": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_folderdf')]",
+							"filedf": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_filedf')]"
 						}
 					}
 				],
@@ -647,9 +704,9 @@
 				"typeProperties": {
 					"sources": [
 						{
-							"dataset": {
-								"referenceName": "eventhubavro",
-								"type": "DatasetReference"
+							"linkedService": {
+								"referenceName": "adlseventhubdata",
+								"type": "LinkedServiceReference"
 							},
 							"name": "souirce"
 						}
@@ -690,7 +747,11 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> souirce",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'avro',",
+						"     fileSystem: ($container),",
+						"     folderPath: ($folder),",
+						"     fileName: ($file)) ~> souirce",
 						"select1 cast(output(",
 						"          Body as string",
 						"     ),",
@@ -724,7 +785,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/eventhubavro')]",
+				"[concat(variables('workspaceId'), '/linkedServices/adlseventhubdata')]",
 				"[concat(variables('workspaceId'), '/datasets/parquetds')]"
 			]
 		},

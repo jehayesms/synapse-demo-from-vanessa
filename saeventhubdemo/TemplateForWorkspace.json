@@ -355,10 +355,9 @@
 									}
 								},
 								"datasetParameters": {
-									"souirce": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {}
+									"sourceAvro": {},
+									"sinktoparquet": {}
+								}
 							},
 							"staging": {},
 							"compute": {
@@ -431,8 +430,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
 			]
 		},
 		{
@@ -708,7 +706,7 @@
 								"referenceName": "adlseventhubdata",
 								"type": "LinkedServiceReference"
 							},
-							"name": "souirce"
+							"name": "sourceAvro"
 						}
 					],
 					"sinks": [
@@ -717,18 +715,24 @@
 								"referenceName": "parquetds",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "sinktoparquet"
 						}
 					],
 					"transformations": [
 						{
-							"name": "cast1"
+							"name": "castBodytoString"
 						},
 						{
 							"name": "select1"
 						},
 						{
-							"name": "parse1"
+							"name": "parseBodytoJson"
+						},
+						{
+							"name": "addColumnsFromJson"
+						},
+						{
+							"name": "selectOnlyJson"
 						}
 					],
 					"scriptLines": [
@@ -751,12 +755,12 @@
 						"     format: 'avro',",
 						"     fileSystem: ($container),",
 						"     folderPath: ($folder),",
-						"     fileName: ($file)) ~> souirce",
+						"     fileName: ($file)) ~> sourceAvro",
 						"select1 cast(output(",
 						"          Body as string",
 						"     ),",
-						"     errors: true) ~> cast1",
-						"souirce select(mapColumn(",
+						"     errors: true) ~> castBodytoString",
+						"sourceAvro select(mapColumn(",
 						"          SequenceNumber,",
 						"          Offset,",
 						"          EnqueuedTimeUtc,",
@@ -764,16 +768,22 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
-						"cast1 parse(jsonBody = Body ? (CustomerID as string,",
-						"          PersonID as string,",
+						"castBodytoString parse(jsonBody = Body ? (CustomerID as integer,",
+						"          PersonID as integer,",
 						"          StoreID as string,",
 						"          TerritoryID as string,",
 						"          AccountNumber as string,",
 						"          rowguid as string,",
 						"          ModifiedDate as string),",
 						"     format: 'json',",
-						"     documentForm: 'arrayOfDocuments') ~> parse1",
-						"parse1 sink(allowSchemaDrift: true,",
+						"     documentForm: 'arrayOfDocuments') ~> parseBodytoJson",
+						"selectOnlyJson derive(each(jsonBody, match(true()), $$ = $$)) ~> addColumnsFromJson",
+						"parseBodytoJson select(mapColumn(",
+						"          jsonBody",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectOnlyJson",
+						"addColumnsFromJson sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     umask: 0022,",
@@ -782,9 +792,8 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     mapColumn(",
-						"          each(match(startsWith(\"jsonBody\",name)),",
-						"               $0 = $$)",
-						"     )) ~> sink1"
+						"          each(match(type == 'string' || type == 'integer'))",
+						"     )) ~> sinktoparquet"
 					]
 				}
 			},
@@ -890,6 +899,26 @@
 			"properties": {
 				"content": {
 					"query": " Select \n    count(*)\nfrom openrowset(\n    bulk 'https://demostreamdatalake.dfs.core.windows.net/datalake/Raw/Customer/Year=*/Month=*/Day=*/File=*/*.snappy.parquet',\n    format = 'parquet')\n AS [r];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://synapseadlsjh.dfs.core.windows.net/synapseadlsjhfs/parquet/part-00000-002c2750-3036-40b4-a70b-a4e1d16a8adc-c000.snappy.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -1621,26 +1650,6 @@
 			},
 			"dependsOn": [],
 			"location": "centralus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://synapseadlsjh.dfs.core.windows.net/synapseadlsjhfs/parquet/part-00000-002c2750-3036-40b4-a70b-a4e1d16a8adc-c000.snappy.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "master",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
 		}
 	]
 }

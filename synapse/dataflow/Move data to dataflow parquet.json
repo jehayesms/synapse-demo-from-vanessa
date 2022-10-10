@@ -9,7 +9,7 @@
 						"referenceName": "adlseventhubdata",
 						"type": "LinkedServiceReference"
 					},
-					"name": "souirce"
+					"name": "sourceAvro"
 				}
 			],
 			"sinks": [
@@ -18,18 +18,24 @@
 						"referenceName": "parquetds",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "sinktoparquet"
 				}
 			],
 			"transformations": [
 				{
-					"name": "cast1"
+					"name": "castBodytoString"
 				},
 				{
 					"name": "select1"
 				},
 				{
-					"name": "parse1"
+					"name": "parseBodytoJson"
+				},
+				{
+					"name": "addColumnsFromJson"
+				},
+				{
+					"name": "selectOnlyJson"
 				}
 			],
 			"scriptLines": [
@@ -52,12 +58,12 @@
 				"     format: 'avro',",
 				"     fileSystem: ($container),",
 				"     folderPath: ($folder),",
-				"     fileName: ($file)) ~> souirce",
+				"     fileName: ($file)) ~> sourceAvro",
 				"select1 cast(output(",
 				"          Body as string",
 				"     ),",
-				"     errors: true) ~> cast1",
-				"souirce select(mapColumn(",
+				"     errors: true) ~> castBodytoString",
+				"sourceAvro select(mapColumn(",
 				"          SequenceNumber,",
 				"          Offset,",
 				"          EnqueuedTimeUtc,",
@@ -65,16 +71,22 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"cast1 parse(jsonBody = Body ? (CustomerID as string,",
-				"          PersonID as string,",
+				"castBodytoString parse(jsonBody = Body ? (CustomerID as integer,",
+				"          PersonID as integer,",
 				"          StoreID as string,",
 				"          TerritoryID as string,",
 				"          AccountNumber as string,",
 				"          rowguid as string,",
 				"          ModifiedDate as string),",
 				"     format: 'json',",
-				"     documentForm: 'arrayOfDocuments') ~> parse1",
-				"parse1 sink(allowSchemaDrift: true,",
+				"     documentForm: 'arrayOfDocuments') ~> parseBodytoJson",
+				"selectOnlyJson derive(each(jsonBody, match(true()), $$ = $$)) ~> addColumnsFromJson",
+				"parseBodytoJson select(mapColumn(",
+				"          jsonBody",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectOnlyJson",
+				"addColumnsFromJson sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     umask: 0022,",
@@ -83,9 +95,8 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
-				"          each(match(startsWith(\"jsonBody\",name)),",
-				"               $0 = $$)",
-				"     )) ~> sink1"
+				"          each(match(type == 'string' || type == 'integer'))",
+				"     )) ~> sinktoparquet"
 			]
 		}
 	}

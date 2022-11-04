@@ -1,5 +1,5 @@
 {
-	"name": "Run Dataflow",
+	"name": "Blob Storage Event Trigger to Run Dataflow",
 	"properties": {
 		"activities": [
 			{

@@ -9,7 +9,8 @@
 		},
 		"saeventhubdemo-WorkspaceDefaultSqlServer_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'saeventhubdemo-WorkspaceDefaultSqlServer'"
+			"metadata": "Secure string for 'connectionString' of 'saeventhubdemo-WorkspaceDefaultSqlServer'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:saeventhubdemo.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
 		},
 		"adlseventhubdata_properties_typeProperties_url": {
 			"type": "string",
@@ -26,22 +27,6 @@
 		"Trigger Customers Streamming_properties_Batching_parameters_sourceFile": {
 			"type": "string",
 			"defaultValue": "@trigger().outputs.body.fileName"
-		},
-		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folder": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.body.folderPath"
-		},
-		"Trigger Customers Streamming_properties_Run Dataflow_parameters_file": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.body.fileName"
-		},
-		"Trigger Customers Streamming_properties_Run Dataflow_parameters_folderdf": {
-			"type": "string",
-			"defaultValue": "@triggerBody().folderPath"
-		},
-		"Trigger Customers Streamming_properties_Run Dataflow_parameters_filedf": {
-			"type": "string",
-			"defaultValue": "@triggerBody().fileName"
 		},
 		"Trigger Customers Streamming_properties_typeProperties_scope": {
 			"type": "string",
@@ -311,7 +296,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Run Dataflow')]",
+			"name": "[concat(parameters('workspaceName'), '/Blob Storage Event Trigger to Run Dataflow')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -430,7 +415,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]"
+				"[concat(variables('workspaceId'), '/dataflows/Move data to dataflow parquet')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -576,18 +562,6 @@
 							"sourceFolderPath": "[parameters('Trigger Customers Streamming_properties_Batching_parameters_sourceFolderPath')]",
 							"sourceFile": "[parameters('Trigger Customers Streamming_properties_Batching_parameters_sourceFile')]"
 						}
-					},
-					{
-						"pipelineReference": {
-							"referenceName": "Run Dataflow",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"folder": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_folder')]",
-							"file": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_file')]",
-							"folderdf": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_folderdf')]",
-							"filedf": "[parameters('Trigger Customers Streamming_properties_Run Dataflow_parameters_filedf')]"
-						}
 					}
 				],
 				"type": "BlobEventsTrigger",
@@ -602,8 +576,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/Batching')]",
-				"[concat(variables('workspaceId'), '/pipelines/Run Dataflow')]"
+				"[concat(variables('workspaceId'), '/pipelines/Batching')]"
 			]
 		},
 		{
@@ -792,7 +765,7 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     mapColumn(",
-						"          each(match(type == 'string' || type == 'integer'))",
+						"          each(match(type=='string'||type=='integer'))",
 						"     )) ~> sinktoparquet"
 					]
 				}
